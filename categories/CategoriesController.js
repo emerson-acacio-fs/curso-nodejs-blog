@@ -1,13 +1,11 @@
 const express = require("express");
 const Category = require("../categories/Category");
 const slugify = require("slugify");
+const adminAuth = require("../middlewares/adminAuth");
+
 const router = express.Router();
 
-router.get("/categories", (req, res) => {
-  res.send("ROTA DE CATEGORIAS");
-});
-
-router.post("/categories/save", (req, res) => {
+router.post("/categories/save", adminAuth, (req, res) => {
   const { title } = req.body;
   if (title) {
     Category.create({ title, slug: slugify(title) }).then((category) => {
@@ -18,11 +16,11 @@ router.post("/categories/save", (req, res) => {
   }
 });
 
-router.get("/admin/categories/new", (req, res) => {
+router.get("/admin/categories/new", adminAuth, (req, res) => {
   res.render("admin/categories/new");
 });
 
-router.get("/admin/categories", (req, res) => {
+router.get("/admin/categories", adminAuth, (req, res) => {
   Category.findAll({
     raw: true,
     order: [["id", "DESC"]], //ASC=decrescente
@@ -31,7 +29,7 @@ router.get("/admin/categories", (req, res) => {
   });
 });
 
-router.get("/admin/categories/edit/:id", (req, res) => {
+router.get("/admin/categories/edit/:id", adminAuth, (req, res) => {
   const { id } = req.params;
 
   if (isNaN(id)) {
@@ -47,7 +45,7 @@ router.get("/admin/categories/edit/:id", (req, res) => {
   }
 });
 
-router.post("/categories/delete", (req, res) => {
+router.post("/categories/delete", adminAuth, (req, res) => {
   const { id } = req.body;
   if (id) {
     if (!isNaN(id)) {
@@ -62,7 +60,7 @@ router.post("/categories/delete", (req, res) => {
   }
 });
 
-router.post("/categories/update", (req, res) => {
+router.post("/categories/update", adminAuth, (req, res) => {
   const { title, id } = req.body;
   if (title) {
     Category.update({ title, slug: slugify(title) }, { where: { id } }).then(

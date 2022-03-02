@@ -2,9 +2,10 @@ const express = require("express");
 const Category = require("../categories/Category");
 const Article = require("./Article");
 const slugify = require("slugify");
+const adminAuth = require("../middlewares/adminAuth");
 const router = express.Router();
 
-router.get("/admin/articles", (req, res) => {
+router.get("/admin/articles", adminAuth, (req, res) => {
   Article.findAll({
     order: [["id", "DESC"]], //ASC=decrescente
     include: [{ model: Category }],
@@ -13,13 +14,13 @@ router.get("/admin/articles", (req, res) => {
   });
 });
 
-router.get("/admin/articles/new", (req, res) => {
+router.get("/admin/articles/new", adminAuth, (req, res) => {
   Category.findAll().then((categories) => {
     res.render("admin/articles/new", { categories });
   });
 });
 
-router.post("/articles/save", (req, res) => {
+router.post("/articles/save", adminAuth, (req, res) => {
   const { title, body, categoryId } = req.body;
   if (title) {
     Article.create({ title, slug: slugify(title), body, categoryId }).then(
@@ -31,7 +32,7 @@ router.post("/articles/save", (req, res) => {
     res.redirect("/admin/articles/new");
   }
 });
-router.post("/articles/delete", (req, res) => {
+router.post("/articles/delete", adminAuth, (req, res) => {
   const { id } = req.body;
   if (id) {
     if (!isNaN(id)) {
@@ -46,7 +47,7 @@ router.post("/articles/delete", (req, res) => {
   }
 });
 
-router.get("/admin/articles/edit/:id", (req, res) => {
+router.get("/admin/articles/edit/:id", adminAuth, (req, res) => {
   const { id } = req.params;
 
   if (isNaN(id)) {
@@ -99,7 +100,7 @@ router.get("/articles/page/:num", (req, res) => {
   );
 });
 
-router.post("/articles/update", (req, res) => {
+router.post("/articles/update", adminAuth, (req, res) => {
   const { title, id, body, categoryId } = req.body;
   if (title) {
     Article.update(

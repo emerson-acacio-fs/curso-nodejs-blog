@@ -6,9 +6,11 @@ const articlesController = require("./articles/ArticlesController");
 const usersController = require("./users/UsersController");
 const Article = require("./articles/Article");
 const Category = require("./categories/Category");
+const session = require("express-session");
 
 const app = express();
 
+app.use(session({ secret: "sddffggtrrswdsds", cookie: { maxAge: 30000000 } }));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -33,7 +35,7 @@ app.get("/", (req, res) => {
     });
   });
 });
-app.get("/:slug", (req, res) => {
+app.get("/articles/:slug", (req, res) => {
   const { slug } = req.params;
   Article.findOne({
     where: { slug },
@@ -77,6 +79,6 @@ app.use("/", categoriesController);
 app.use("/", articlesController);
 app.use("/", usersController);
 
-app.listen(8080, () => {
+app.listen(7777, () => {
   console.log("O servidor foi iniciado");
 });
