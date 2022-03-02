@@ -67,6 +67,38 @@ router.get("/admin/articles/edit/:id", (req, res) => {
   }
 });
 
+router.get("/articles/page/:num", (req, res) => {
+  const { num: page } = req.params;
+  let offset = 0;
+
+  if (isNaN(page) || page == 1) {
+    offset = 0;
+  } else {
+    offset = (parseInt(page) - 1) * 4;
+  }
+
+  Article.findAndCountAll({ limit: 4, offset, order: [["id", "DESC"]] }).then(
+    (articles) => {
+      let next = false;
+      if (offset + 4 >= articles.count) {
+        next = false;
+      } else {
+        next = true;
+      }
+
+      Category.findAll({
+        raw: true,
+        order: [["id", "DESC"]], //ASC=decrescente
+      }).then((categories) => {
+        res.render("admin/articles/page", {
+          result: { articles, next, page: parseInt(page) },
+          categories,
+        });
+      });
+    }
+  );
+});
+
 router.post("/articles/update", (req, res) => {
   const { title, id, body, categoryId } = req.body;
   if (title) {

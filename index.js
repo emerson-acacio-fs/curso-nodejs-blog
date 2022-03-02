@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const connection = require("./database/database");
 const categoriesController = require("./categories/CategoriesController");
 const articlesController = require("./articles/ArticlesController");
+const usersController = require("./users/UsersController");
 const Article = require("./articles/Article");
 const Category = require("./categories/Category");
 
@@ -21,6 +22,7 @@ connection
 app.get("/", (req, res) => {
   Article.findAll({
     order: [["id", "DESC"]], //ASC=decrescente
+    limit: 4,
     // include: [{ model: Category }],
   }).then((articles) => {
     Category.findAll({
@@ -73,6 +75,7 @@ app.get("/category/:slug", (req, res) => {
 
 app.use("/", categoriesController);
 app.use("/", articlesController);
+app.use("/", usersController);
 
 app.listen(8080, () => {
   console.log("O servidor foi iniciado");

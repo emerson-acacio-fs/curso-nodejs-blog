@@ -23,13 +23,17 @@
             name="body"
             placeholder="Escreva o artigo aqui!"
           >
-            <%= article.body %>
           </textarea>
           <br />
           <select class="form-control" name="categoryId">
             <% categories.forEach((category)=>{%>
+            <%if(category.id==article.categoryId){ %>
+            <option value="<%= category.id %>" selected>
+              <%= category.title %>
+            </option>
+            <%}else{ %>
             <option value="<%= category.id %>"><%= category.title %></option>
-            <% }) %>
+            <%}%> <% }) %>
           </select>
           <br />
           <input type="hidden" value="<%= article.id %>" name="id" />
@@ -38,6 +42,7 @@
       </div>
     </div>
   </div>
+  <div id="content" style="display: none"><%- article.body %></div>
   <script src="/tinymce/tinymce.min.js"></script>
   <script>
     tinymce.init({
@@ -46,6 +51,9 @@
       plugins: [
         "advlist autolink link image lists print preview hr searchreplace wordcount fullscreen insertdatetime media save table paste emoticons",
       ],
+      init_instance_callback: () => {
+        tinymce.get("article").setContent($("#content").html());
+      },
     });
   </script>
   <%- include('../../partials/footer.ejs') %>
