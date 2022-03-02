@@ -19,7 +19,56 @@ connection
   .catch((error) => console.log(error));
 
 app.get("/", (req, res) => {
-  res.render("index");
+  Article.findAll({
+    order: [["id", "DESC"]], //ASC=decrescente
+    // include: [{ model: Category }],
+  }).then((articles) => {
+    Category.findAll({
+      raw: true,
+      order: [["id", "DESC"]], //ASC=decrescente
+    }).then((categories) => {
+      res.render("index", { articles, categories });
+    });
+  });
+});
+app.get("/:slug", (req, res) => {
+  const { slug } = req.params;
+  Article.findOne({
+    where: { slug },
+  })
+    .then((article) => {
+      if (article) {
+        Category.findAll({
+          raw: true,
+          order: [["id", "DESC"]], //ASC=decrescente
+        }).then((categories) => {
+          res.render("article", { article, categories });
+        });
+      } else {
+        res.redirect("/");
+      }
+    })
+    .catch(() => res.redirect("/"));
+});
+app.get("/category/:slug", (req, res) => {
+  const { slug } = req.params;
+  Category.findOne({
+    where: { slug },
+    include: [{ model: Article }],
+  })
+    .then((category) => {
+      if (category) {
+        Category.findAll({
+          raw: true,
+          order: [["id", "DESC"]], //ASC=decrescente
+        }).then((categories) => {
+          res.render("index", { articles: category.articles, categories });
+        });
+      } else {
+        res.redirect("/");
+      }
+    })
+    .catch(() => res.redirect("/"));
 });
 
 app.use("/", categoriesController);
